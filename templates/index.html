@@ -13,10 +13,14 @@
 
             companies.forEach(company => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${company.uniteLegale.nomUniteLegale} - ${company.activitePrincipaleUniteLegale}`;
+                const uniteLegale = company.uniteLegale;
+                const companyName = uniteLegale.denominationUniteLegale;
+                const activity = uniteLegale.activitePrincipaleUniteLegale;
+                const legalCategory = uniteLegale.categorieJuridiqueUniteLegale;
+                listItem.textContent = `${companyName} - ${activity} - ${legalCategory}`;
                 const generateButton = document.createElement('button');
                 generateButton.textContent = 'Generate Email';
-                generateButton.onclick = () => generateEmail(company.uniteLegale.denominationUniteLegale, company.activitePrincipaleUniteLegale);
+                generateButton.onclick = () => generateEmail(companyName, activity);
                 listItem.appendChild(generateButton);
                 companiesList.appendChild(listItem);
             });

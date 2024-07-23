@@ -13,8 +13,26 @@ app = Flask(__name__)
 SIRENE_API_URL = "https://api.insee.fr/entreprises/sirene/V3.11/siret"
 
 # Obtenir la clé API depuis les variables d'environnement
-API_KEY = os.getenv("SIRENE_API_KEY")
-CHATGPT_API_KEY = os.getenv("CHATGPT_API_KEY")
+API_KEY = os.getenv('SIRENE_API_KEY')
+CHATGPT_API_KEY = os.getenv('CHATGPT_API_KEY')
+
+# Tables de correspondance
+NAF_CODES = {
+    "85.59B": "Autres enseignements",
+    "62.01Z": "Programmation informatique",
+    "47.11B": "Grande distribution",
+    "56.10A": "Restauration traditionnelle",
+    "47.25Z": "Commerce de détail de boissons en magasin spécialisé",
+    "47.11A": "Petite distribution",
+    "47.19A": "Grands magasins",
+    
+}
+
+
+
+
+def translate_code(code, table):
+    return table.get(code, code)
 
 def fetch_companies_for_date(date):
     headers = {
@@ -47,6 +65,14 @@ def get_new_companies():
         date_str = single_date.strftime('%Y-%m-%d')
         companies = fetch_companies_for_date(date_str)
         all_companies.extend(companies)
+    
+    for company in all_companies:
+        unite_legale = company.get('uniteLegale', {})
+        activite_code = unite_legale.get('activitePrincipaleUniteLegale')
+        categorie_code = unite_legale.get('categorieJuridiqueUniteLegale')
+        unite_legale['activitePrincipaleUniteLegale'] = translate_code(activite_code, NAF_CODES)
+        # fait la conversion avec le fichier json des catégories juridiques 
+        
     
     return jsonify(all_companies)
 

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Companies and Email Generator</title>
+    <script>
+        async function fetchCompanies() {
+            const response = await fetch('/new_companies?days=30');
+            const companies = await response.json();
+            const companiesList = document.getElementById('companies-list');
+            companiesList.innerHTML = '';
+
+            companies.forEach(company => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${company.uniteLegale.nomUniteLegale} - ${company.activitePrincipaleUniteLegale}`;
+                const generateButton = document.createElement('button');
+                generateButton.textContent = 'Generate Email';
+                generateButton.onclick = () => generateEmail(company.uniteLegale.denominationUniteLegale, company.activitePrincipaleUniteLegale);
+                listItem.appendChild(generateButton);
+                companiesList.appendChild(listItem);
+            });
+        }
+
+        async function generateEmail(companyName, activity) {
+            const response = await fetch('/generate_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ company_name: companyName, activity: activity })
+            });
+            const data = await response.json();
+            alert(data.email);
+        }
+
+        window.onload = fetchCompanies;
+    </script>
+</head>
+<body>
+    <h1>New Companies</h1>
+    <ul id="companies-list"></ul>
+</body>
+</html>
